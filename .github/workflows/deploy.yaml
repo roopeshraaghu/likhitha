@@ -23,6 +23,12 @@ jobs:
           chmod 600 ~/.ssh/ec2_key.pem
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
+      - name: Fix permissions
+        run: |
+          ssh -i ~/.ssh/ec2_key.pem \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
+            "sudo chown -R ubuntu:ubuntu /var/www/vresolve/"   
+
       # ── Copy backend files ───────────────────────────────
       - name: Copy backend
         run: |
@@ -59,7 +65,7 @@ jobs:
           EOF"
 
       # ── Fix permissions ───────────────────────────────────
-      - name: Fix permissions
+      - name: Change Ownership & Permissions
         run: |
           ssh -i ~/.ssh/ec2_key.pem \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
