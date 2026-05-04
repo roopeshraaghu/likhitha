@@ -63,7 +63,8 @@ jobs:
         run: |
           ssh -i ~/.ssh/ec2_key.pem \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            "sudo chown -R www-data:www-data /var/www/vresolve/public/ && \
+            "sudo chown -R ubuntu:ubuntu /var/www/vresolve/ && \
+             sudo chown -R www-data:www-data /var/www/vresolve/public/ && \
              sudo chmod -R 755 /var/www/vresolve/"
 
       # ── Install deps & restart API ────────────────────────
