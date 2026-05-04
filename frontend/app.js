@@ -272,7 +272,7 @@ async function loadFeed() {
 }
 
 function renderFeedPost(p) {
-  const isOwn = p.author_id === me?.id;
+  const isOwn = String(p.author_id) === String(me?.id);
   return `
     <div class="pcard" id="fp-${p.id}">
       <div class="ph">
@@ -354,7 +354,7 @@ async function loadComments(postId, type) {
           <div class="comment-text">${c.body}</div>
           <div class="comment-meta">
             <span class="comment-time">${fmtTime(c.created_at)}</span>
-            ${c.author_id === me?.id
+            ${String(c.author_id) === String(me?.id)
               ? `<button class="btn-icon" onclick="deleteComment('${postId}','${c.id}','${type}')">🗑️</button>`
               : ''}
           </div>
