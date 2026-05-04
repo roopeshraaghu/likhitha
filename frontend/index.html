@@ -4,22 +4,18 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>vResolve</title>
-
-    <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-
-    <!-- App Styles -->
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 
-<!-- ── Loading Screen ──────────────────────────────────── -->
+<!-- ── Loading ─────────────────────────────────────────── -->
 <div id="loading-screen">
     <div class="logo">vResolve</div>
     <div class="spinner"></div>
 </div>
 
-<!-- ── Auth Screen ─────────────────────────────────────── -->
+<!-- ── Auth ────────────────────────────────────────────── -->
 <div id="auth">
     <div class="logo" style="margin-bottom:.5rem">vResolve</div>
     <p style="color:var(--muted);margin-bottom:2rem;font-size:.95rem">Your social wellness companion</p>
@@ -32,35 +28,20 @@
     <div class="auth-card">
         <h2 id="auth-title">Sign in to vResolve</h2>
 
-        <!-- Login Form -->
+        <!-- Login -->
         <div id="login-form">
-            <div class="fg">
-                <label>Email</label>
-                <input type="email" id="login-email" placeholder="you@example.com">
-            </div>
-            <div class="fg">
-                <label>Password</label>
-                <input type="password" id="login-pass" placeholder="••••••••">
-            </div>
+            <div class="fg"><label>Email</label><input type="email" id="login-email" placeholder="you@example.com"></div>
+            <div class="fg"><label>Password</label><input type="password" id="login-pass" placeholder="••••••••"></div>
             <div class="auth-err" id="login-err"></div>
             <button class="btn-primary" id="login-btn" onclick="doLogin()">Sign in</button>
             <div class="auth-sw">No account? <span onclick="showReg()">Create one</span></div>
         </div>
 
-        <!-- Register Form -->
+        <!-- Register -->
         <div id="reg-form" style="display:none">
-            <div class="fg">
-                <label>Name</label>
-                <input type="text" id="reg-name" placeholder="Your name">
-            </div>
-            <div class="fg">
-                <label>Email</label>
-                <input type="email" id="reg-email" placeholder="you@example.com">
-            </div>
-            <div class="fg">
-                <label>Password</label>
-                <input type="password" id="reg-pass" placeholder="Min 6 characters">
-            </div>
+            <div class="fg"><label>Name</label><input type="text" id="reg-name" placeholder="Your name"></div>
+            <div class="fg"><label>Email</label><input type="email" id="reg-email" placeholder="you@example.com"></div>
+            <div class="fg"><label>Password</label><input type="password" id="reg-pass" placeholder="Min 6 characters"></div>
             <div class="auth-err" id="reg-err"></div>
             <button class="btn-primary" id="reg-btn" onclick="doRegister()">Create account</button>
             <div class="auth-sw">Have an account? <span onclick="showLogin()">Sign in</span></div>
@@ -68,20 +49,32 @@
     </div>
 </div>
 
-<!-- ── Profile Settings Modal ──────────────────────────── -->
+<!-- ── Profile Modal ────────────────────────────────────── -->
 <div class="mo" id="prof-modal" style="display:none" onclick="closeProfModal(event)">
     <div class="mb" onclick="event.stopPropagation()">
         <h3>Account Settings</h3>
-        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem">
-            <div class="mav" id="mav"></div>
-            <div style="font-size:.78rem;color:var(--muted);line-height:1.5">
-                Your initials avatar is shown<br>to others in the community.
+
+        <!-- Avatar Upload -->
+        <div class="avatar-upload-wrap">
+            <div class="avatar-upload-btn" onclick="triggerAvatarUpload()">
+                <div id="modal-av-wrap"></div>
+                <div class="avatar-upload-overlay">📷<br>Change</div>
+            </div>
+            <div class="avatar-upload-hint">
+                Click avatar to upload a profile photo.<br>
+                JPG or PNG, shown across the app.
             </div>
         </div>
+        <input type="file" id="avatar-file-input" accept="image/*"
+               style="display:none" onchange="handleAvatarChange(event)">
+
         <div class="mf">
             <div class="fg"><label>Display Name</label><input type="text" id="s-name"></div>
             <div class="fg"><label>Bio</label><input type="text" id="s-bio" placeholder="Tell something about yourself"></div>
-            <div class="fg"><label>Email</label><input type="email" id="s-email" disabled style="opacity:.5"></div>
+            <div class="fg">
+                <label>Email</label>
+                <input type="email" id="s-email" disabled style="opacity:.5">
+            </div>
         </div>
         <div class="mbtns">
             <button class="btn-ghost" onclick="closeProfModal()">Cancel</button>
@@ -90,18 +83,17 @@
     </div>
 </div>
 
-<!-- ── Toast Notification ──────────────────────────────── -->
+<!-- ── Toast ────────────────────────────────────────────── -->
 <div class="toast" id="toast"></div>
 
-<!-- ── Main App ────────────────────────────────────────── -->
+<!-- ── App ──────────────────────────────────────────────── -->
 <div id="app">
 
-    <!-- Top Bar -->
+    <!-- Topbar -->
     <div class="topbar">
         <div class="tlogo">vResolve</div>
         <div class="tright">
             <div class="av" id="top-av" onclick="toggleDD()">?</div>
-            <!-- Dropdown Menu -->
             <div class="dropdown" id="dd">
                 <div class="dh">
                     <div class="av" id="dd-av" style="width:38px;height:38px">?</div>
@@ -119,19 +111,20 @@
         </div>
     </div>
 
-    <!-- Tab Bar -->
+    <!-- Tabs -->
     <div class="tabs">
         <div class="tab active" id="tb-feed"     onclick="goTab('feed')">📣 Feed</div>
         <div class="tab"        id="tb-vault"    onclick="goTab('vault')">🔒 Vault</div>
         <div class="tab"        id="tb-wellness" onclick="goTab('wellness')">🧘 Wellness</div>
     </div>
 
-    <!-- ── Feed Tab ───────────────────────────────────────── -->
+    <!-- ── Feed Tab ─────────────────────────────────────── -->
     <div class="tc active" id="tab-feed">
         <div class="fw">
             <div class="wl">Welcome back,</div>
             <div class="wn" id="wname">User</div>
         </div>
+
         <!-- Composer -->
         <div class="composer">
             <div class="ctop">
@@ -143,8 +136,8 @@
                 <div class="photo-preview" id="photo-preview">
                     <img id="pp-img" src="" alt="preview">
                 </div>
-                <input type="file" id="photo-file" accept="image/*" style="display:none"
-                       onchange="handlePhoto(event)">
+                <input type="file" id="photo-file" accept="image/*"
+                       style="display:none" onchange="handlePhoto(event)">
             </div>
             <div class="cact">
                 <button class="cbtn photo"
@@ -155,19 +148,22 @@
                 <button class="btn-post" id="post-btn" onclick="postFeed()">Post</button>
             </div>
         </div>
+
         <!-- Feed Posts -->
         <div id="feed-posts">
             <div class="empty">Loading posts...</div>
         </div>
     </div>
 
-    <!-- ── Vault Tab ──────────────────────────────────────── -->
+    <!-- ── Vault Tab ────────────────────────────────────── -->
     <div class="tc" id="tab-vault">
         <div class="anon">
             🔒 You are posting as
             <strong style="color:var(--text);margin:0 .3rem">Community Member</strong>
             — completely anonymous
         </div>
+
+        <!-- Vault Composer -->
         <div class="composer">
         <textarea class="vault-textarea" id="vault-inp" rows="3"
                   placeholder="Share anything anonymously. Our AI will respond with wisdom...">
@@ -178,13 +174,14 @@
                 </button>
             </div>
         </div>
+
         <!-- Vault Posts -->
         <div id="vault-posts">
             <div class="empty">Loading posts...</div>
         </div>
     </div>
 
-    <!-- ── Wellness Tab ───────────────────────────────────── -->
+    <!-- ── Wellness Tab ──────────────────────────────────── -->
     <div class="tc" id="tab-wellness">
         <div class="wgrid">
 
@@ -231,8 +228,6 @@
 
 </div><!-- /#app -->
 
-<!-- App Logic -->
 <script src="app.js"></script>
-
 </body>
 </html>
