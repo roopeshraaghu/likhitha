@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>vResolve</title>
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+
+    <!-- App Styles -->
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ── Loading Screen ──────────────────────────────────── -->
+<div id="loading-screen">
+    <div class="logo">vResolve</div>
+    <div class="spinner"></div>
+</div>
+
+<!-- ── Auth Screen ─────────────────────────────────────── -->
+<div id="auth">
+    <div class="logo" style="margin-bottom:.5rem">vResolve</div>
+    <p style="color:var(--muted);margin-bottom:2rem;font-size:.95rem">Your social wellness companion</p>
+    <div class="pills">
+        <div class="pill">📣 Public Feed</div>
+        <div class="pill">🔒 Anonymous Vault</div>
+        <div class="pill">🧘 Wellness Tracker</div>
+        <div class="pill">🤖 AI First Responder</div>
+    </div>
+    <div class="auth-card">
+        <h2 id="auth-title">Sign in to vResolve</h2>
+
+        <!-- Login Form -->
+        <div id="login-form">
+            <div class="fg">
+                <label>Email</label>
+                <input type="email" id="login-email" placeholder="you@example.com">
+            </div>
+            <div class="fg">
+                <label>Password</label>
+                <input type="password" id="login-pass" placeholder="••••••••">
+            </div>
+            <div class="auth-err" id="login-err"></div>
+            <button class="btn-primary" id="login-btn" onclick="doLogin()">Sign in</button>
+            <div class="auth-sw">No account? <span onclick="showReg()">Create one</span></div>
+        </div>
+
+        <!-- Register Form -->
+        <div id="reg-form" style="display:none">
+            <div class="fg">
+                <label>Name</label>
+                <input type="text" id="reg-name" placeholder="Your name">
+            </div>
+            <div class="fg">
+                <label>Email</label>
+                <input type="email" id="reg-email" placeholder="you@example.com">
+            </div>
+            <div class="fg">
+                <label>Password</label>
+                <input type="password" id="reg-pass" placeholder="Min 6 characters">
+            </div>
+            <div class="auth-err" id="reg-err"></div>
+            <button class="btn-primary" id="reg-btn" onclick="doRegister()">Create account</button>
+            <div class="auth-sw">Have an account? <span onclick="showLogin()">Sign in</span></div>
+        </div>
+    </div>
+</div>
+
+<!-- ── Profile Settings Modal ──────────────────────────── -->
+<div class="mo" id="prof-modal" style="display:none" onclick="closeProfModal(event)">
+    <div class="mb" onclick="event.stopPropagation()">
+        <h3>Account Settings</h3>
+        <div style="display:flex;align-items:center;gap:1rem;margin-bottom:1.25rem">
+            <div class="mav" id="mav"></div>
+            <div style="font-size:.78rem;color:var(--muted);line-height:1.5">
+                Your initials avatar is shown<br>to others in the community.
+            </div>
+        </div>
+        <div class="mf">
+            <div class="fg"><label>Display Name</label><input type="text" id="s-name"></div>
+            <div class="fg"><label>Bio</label><input type="text" id="s-bio" placeholder="Tell something about yourself"></div>
+            <div class="fg"><label>Email</label><input type="email" id="s-email" disabled style="opacity:.5"></div>
+        </div>
+        <div class="mbtns">
+            <button class="btn-ghost" onclick="closeProfModal()">Cancel</button>
+            <button class="btn-save" onclick="saveProfile()">Save changes</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Toast Notification ──────────────────────────────── -->
+<div class="toast" id="toast"></div>
+
+<!-- ── Main App ────────────────────────────────────────── -->
+<div id="app">
+
+    <!-- Top Bar -->
+    <div class="topbar">
+        <div class="tlogo">vResolve</div>
+        <div class="tright">
+            <div class="av" id="top-av" onclick="toggleDD()">?</div>
+            <!-- Dropdown Menu -->
+            <div class="dropdown" id="dd">
+                <div class="dh">
+                    <div class="av" id="dd-av" style="width:38px;height:38px">?</div>
+                    <div>
+                        <div class="dn" id="dd-name"></div>
+                        <div class="de" id="dd-email"></div>
+                    </div>
+                </div>
+                <div class="di" onclick="openProfModal()">👤 Account settings</div>
+                <div class="di" onclick="goTab('wellness')">🧘 My wellness</div>
+                <div class="di" onclick="goTab('vault')">🔒 Community vault</div>
+                <div class="dd"></div>
+                <div class="di danger" onclick="logout()">🚪 Sign out</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tabs">
+        <div class="tab active" id="tb-feed"     onclick="goTab('feed')">📣 Feed</div>
+        <div class="tab"        id="tb-vault"    onclick="goTab('vault')">🔒 Vault</div>
+        <div class="tab"        id="tb-wellness" onclick="goTab('wellness')">🧘 Wellness</div>
+    </div>
+
+    <!-- ── Feed Tab ───────────────────────────────────────── -->
+    <div class="tc active" id="tab-feed">
+        <div class="fw">
+            <div class="wl">Welcome back,</div>
+            <div class="wn" id="wname">User</div>
+        </div>
+        <!-- Composer -->
+        <div class="composer">
+            <div class="ctop">
+                <div class="av" id="feed-av" style="width:42px;height:42px;flex-shrink:0">?</div>
+                <div class="cph" id="cph" onclick="expandComposer()">What's on your mind?</div>
+            </div>
+            <div class="cexp" id="cexp">
+                <textarea id="feed-inp" rows="3" placeholder="What's on your mind?"></textarea>
+                <div class="photo-preview" id="photo-preview">
+                    <img id="pp-img" src="" alt="preview">
+                </div>
+                <input type="file" id="photo-file" accept="image/*" style="display:none"
+                       onchange="handlePhoto(event)">
+            </div>
+            <div class="cact">
+                <button class="cbtn photo"
+                        onclick="document.getElementById('photo-file').click();expandComposer()">
+                    📷 Photo
+                </button>
+                <button class="cbtn article" onclick="expandComposer()">✏️ Article</button>
+                <button class="btn-post" id="post-btn" onclick="postFeed()">Post</button>
+            </div>
+        </div>
+        <!-- Feed Posts -->
+        <div id="feed-posts">
+            <div class="empty">Loading posts...</div>
+        </div>
+    </div>
+
+    <!-- ── Vault Tab ──────────────────────────────────────── -->
+    <div class="tc" id="tab-vault">
+        <div class="anon">
+            🔒 You are posting as
+            <strong style="color:var(--text);margin:0 .3rem">Community Member</strong>
+            — completely anonymous
+        </div>
+        <div class="composer">
+        <textarea class="vault-textarea" id="vault-inp" rows="3"
+                  placeholder="Share anything anonymously. Our AI will respond with wisdom...">
+        </textarea>
+            <div style="display:flex;justify-content:flex-end;margin-top:.6rem">
+                <button class="btn-post" id="vault-btn" onclick="postVault()">
+                    Share Anonymously
+                </button>
+            </div>
+        </div>
+        <!-- Vault Posts -->
+        <div id="vault-posts">
+            <div class="empty">Loading posts...</div>
+        </div>
+    </div>
+
+    <!-- ── Wellness Tab ───────────────────────────────────── -->
+    <div class="tc" id="tab-wellness">
+        <div class="wgrid">
+
+            <!-- Calorie Tracker -->
+            <div class="wcard" style="grid-column:span 2">
+                <h3>🔥 Calorie Tracker</h3>
+                <div style="display:flex;align-items:baseline;gap:.5rem">
+                    <div class="sbig" id="cal-c">0</div>
+                    <div class="slbl">/ <span id="cal-g">2000</span> kcal goal</div>
+                </div>
+                <div class="pb"><div class="pf" id="cal-pf" style="width:0%"></div></div>
+                <div style="font-size:.78rem;color:var(--muted)" id="cal-rem">2000 kcal remaining</div>
+                <div class="cir">
+                    <input type="number" id="cal-inp" placeholder="Enter kcal" min="0">
+                    <input type="number" id="goal-inp" placeholder="Goal" value="2000"
+                           min="100" style="max-width:90px">
+                    <button class="btn-sm" onclick="addCal()">+ Add</button>
+                    <button class="btn-sm ghost" onclick="resetCal()">Reset</button>
+                </div>
+            </div>
+
+            <!-- Meditation Timer -->
+            <div class="wcard" style="grid-column:span 2">
+                <h3>🧘 Meditation Timer</h3>
+                <div class="tdsp" id="t-dsp">05:00</div>
+                <div class="pb"><div class="pf" id="t-pf" style="width:100%"></div></div>
+                <div class="tctrl">
+                    <button class="btmr" onclick="setTmr(5)">5m</button>
+                    <button class="btmr" onclick="setTmr(10)">10m</button>
+                    <button class="btmr" onclick="setTmr(15)">15m</button>
+                    <button class="btmr" onclick="setTmr(20)">20m</button>
+                    <button class="btmr active" id="t-tog" onclick="togTmr()">Start</button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Weekly Chart -->
+        <div class="cw">
+            <h3>📊 Weekly Calories</h3>
+            <canvas id="wchart" height="160"></canvas>
+        </div>
+    </div>
+
+</div><!-- /#app -->
+
+<!-- App Logic -->
+<script src="app.js"></script>
+
+</body>
+</html>
