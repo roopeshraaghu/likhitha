@@ -5,6 +5,8 @@
 
 const API = window.location.origin;
 
+const API = 'https://ls93u66jci.execute-api.ap-south-1.amazonaws.com';
+
 // ── Anonymous session ID (persisted per browser) ─────────────
 let vaultSessionId = localStorage.getItem('vr_vault_session');
 if (!vaultSessionId) {
