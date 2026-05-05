@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>vResolve</title>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.6.1/cropper.min.css">
     <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -83,7 +85,24 @@
     </div>
 </div>
 
-<!-- ── Toast ────────────────────────────────────────────── -->
+<!-- ── Image Crop Modal ─────────────────────────────────── -->
+<div class="mo" id="crop-modal" style="display:none">
+    <div class="mb" style="max-width:520px" onclick="event.stopPropagation()">
+        <h3>Crop & Adjust Photo</h3>
+        <div style="background:#000;border-radius:8px;overflow:hidden;max-height:360px;margin-bottom:1rem">
+            <img id="crop-img" src="" alt="crop" style="max-width:100%;display:block">
+        </div>
+        <p style="font-size:.8rem;color:var(--muted);margin-bottom:1rem">
+            Drag to reposition · Pinch or scroll to zoom · Drag corners to resize
+        </p>
+        <div class="mbtns">
+            <button class="btn-ghost" onclick="closeCropModal()">Cancel</button>
+            <button class="btn-save" id="crop-apply-btn" onclick="applyCrop()">Use this photo</button>
+        </div>
+    </div>
+</div>
+
+<!-- ── Toast ──────────────────────────────────────────────── -->
 <div class="toast" id="toast"></div>
 
 <!-- ── App ──────────────────────────────────────────────── -->
