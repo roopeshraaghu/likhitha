@@ -23,14 +23,28 @@ jobs:
           chmod 600 ~/.ssh/ec2_key.pem
           ssh-keyscan -H ${{ secrets.EC2_HOST }} >> ~/.ssh/known_hosts
 
-      # ── Pull latest code on EC2 ───────────────────────────
-      - name: Pull latest code
+      - name: Fix permissions
         run: |
           ssh -i ~/.ssh/ec2_key.pem \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            "sudo chown -R ubuntu:ubuntu /var/www/vresolve/ && \
-             cd /var/www/vresolve && \
-             git pull origin main"
+            "sudo chown -R ubuntu:ubuntu /var/www/vresolve/"   
+
+      # ── Copy backend files ───────────────────────────────
+      - name: Copy backend
+        run: |
+          scp -i ~/.ssh/ec2_key.pem \
+            backend/server.js \
+            backend/package.json \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/vresolve/backend/
+
+      # ── Copy all frontend files ──────────────────────────
+      - name: Copy frontend
+        run: |
+          scp -i ~/.ssh/ec2_key.pem \
+            frontend/index.html \
+            frontend/styles.css \
+            frontend/app.js \
+            ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }}:/var/www/vresolve/public/
 
       # ── Write .env from GitHub Secrets ───────────────────
       - name: Write .env
@@ -55,11 +69,12 @@ jobs:
           EOF"
 
       # ── Fix permissions ───────────────────────────────────
-      - name: Fix permissions
+      - name: Change Ownership & Permissions
         run: |
           ssh -i ~/.ssh/ec2_key.pem \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            "sudo chown -R www-data:www-data /var/www/vresolve/frontend/ && \
+            "sudo chown -R ubuntu:ubuntu /var/www/vresolve/ && \
+             sudo chown -R www-data:www-data /var/www/vresolve/public/ && \
              sudo chmod -R 755 /var/www/vresolve/"
 
       # ── Install deps & restart API ────────────────────────
@@ -69,9 +84,7 @@ jobs:
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
             "cd /var/www/vresolve/backend && \
              npm install --production && \
-             pm2 describe vresolve-api > /dev/null 2>&1 \
-               && pm2 restart vresolve-api --update-env \
-               || pm2 start server.js --name vresolve-api && \
+             pm2 restart vresolve-api || pm2 start server.js --name vresolve-api && \
              pm2 save"
 
       # ── Reload Nginx ──────────────────────────────────────
@@ -79,7 +92,7 @@ jobs:
         run: |
           ssh -i ~/.ssh/ec2_key.pem \
             ${{ secrets.EC2_USER }}@${{ secrets.EC2_HOST }} \
-            "sudo nginx -t && sudo systemctl reload nginx"
+            "sudo systemctl reload nginx"
 
       # ── Health check ──────────────────────────────────────
       - name: Health check
